@@ -14,10 +14,8 @@ const showLoadingSelect = selector({
 	key: 'showLoadingSelect',
 	set: ({set}, timeout) => {
 		set(loadingState, (prevState) => {
-			console.log('#@# showLoading')
 			if (timeout) {
 				if (prevState.timeout) {
-					console.log('#@# clearTimeout')
 					clearTimeout(prevState.timeout)
 				}
 				return {
@@ -37,7 +35,6 @@ const showLoadingSelect = selector({
 const hideLoadingSelect = selector({
 	key: 'hideLoadingSelect',
 	set: ({set}) => {
-		console.log('#@# hideLoading')
 		set(loadingState, (prevState) => ({
 			...prevState,
 			checkCount: prevState.checkCount - 1,
@@ -48,7 +45,6 @@ const hideLoadingSelect = selector({
 const resetLoadingSelect = selector({
 	key: 'resetLoadingSelect',
 	set: ({set}) => {
-		console.log('#@# reset')
 		set(loadingState, {checkCount: 0, timeout: null})
 	},
 })
@@ -66,8 +62,6 @@ const useLoadingSelect = (useSetRecoilState) => {
 	const hideLoading = useSetRecoilState(hideLoadingSelect)
 	const resetLoading = useSetRecoilState(resetLoadingSelect)
 	const showLoadingWithTimeout = () => showLoading(setTimeout(() => resetLoading(), LOADING_MAX_TIME))
-
-	// return {showLoading, showLoadingWithTimeout, hideLoading}
 	return [showLoadingWithTimeout, hideLoading]
 }
 

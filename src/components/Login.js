@@ -16,13 +16,8 @@ const Login = () => {
 	const emailRef = useRef()
 	const passwordRef = useRef()
 
-	useEffect(() => {
-		emailRef.current.input.focus()
-	}, [])
-
 	const checkValidate = (email, password) => {
 		//TODO eamil , pw validate
-
 		return email.length > 0 && password.length > 0
 	}
 	const onClickLoginButton = (e) => {
@@ -36,9 +31,9 @@ const Login = () => {
 			return
 		}
 
-		// setLoading({ ...loadingData, checkSum: 1 });
 		// "email": "eve.holt@reqres.in",
 		// "password": "cityslicka"
+
 		showLoading()
 		axios
 			.post('https://reqres.in/api/login', {
