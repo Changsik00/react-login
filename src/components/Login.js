@@ -2,7 +2,7 @@ import {Form, Input, Button, message} from 'antd'
 import React, {useRef, useEffect} from 'react'
 import axios from 'axios'
 import {useSetRecoilState} from 'recoil'
-import {useLoadingSelect} from '../store/recoil/loading'
+import {useLoadingSelector} from '../store/recoil/loading'
 const layout = {
 	labelCol: {span: 8},
 	wrapperCol: {span: 16},
@@ -11,22 +11,22 @@ const tailLayout = {
 	wrapperCol: {offset: 8, span: 16},
 }
 
+const checkValidate = (email, password) => {
+	// TODO REGX
+	return email.length > 0 && password.length > 0
+}
+
 const Login = () => {
-	const [showLoading, hideLoading] = useLoadingSelect(useSetRecoilState)
+	const [showLoading, hideLoading] = useLoadingSelector(useSetRecoilState)
 	const emailRef = useRef()
 	const passwordRef = useRef()
 
-	const checkValidate = (email, password) => {
-		//TODO eamil , pw validate
-		return email.length > 0 && password.length > 0
-	}
-	const onClickLoginButton = (e) => {
+	const onClickLoginButton = async (e) => {
 		e.preventDefault()
 		const email = emailRef.current.input.value
 		const password = passwordRef.current.input.value
 
 		if (!checkValidate(email, password)) {
-			// TODO Toast or Validate error
 			message.info('check your Email or Password')
 			return
 		}
@@ -35,21 +35,15 @@ const Login = () => {
 		// "password": "cityslicka"
 
 		showLoading()
-		axios
-			.post('https://reqres.in/api/login', {
-				email,
-				password,
-			})
-			.then((response) => {
-				emailRef.current.input.value = ''
-				passwordRef.current.input.value = ''
-				console.log('#@# success', response.data)
-				hideLoading()
-			})
-			.catch((error) => {
-				message.error(error.message)
-				hideLoading()
-			})
+		try {
+			const res = await axios.post('https://reqres.in/api/login', {email, password})
+			emailRef.current.input.value = ''
+			passwordRef.current.input.value = ''
+			console.log('#@# success', res.data)
+		} catch (error) {
+			message.error(error.message)
+		}
+		hideLoading()
 	}
 
 	return (

@@ -10,7 +10,7 @@ const loadingState = atom({
 	},
 })
 
-const showLoadingSelect = selector({
+const showLoadingSelector = selector({
 	key: 'showLoadingSelect',
 	set: ({set}, timeout) => {
 		set(loadingState, (prevState) => {
@@ -32,8 +32,8 @@ const showLoadingSelect = selector({
 	},
 })
 
-const hideLoadingSelect = selector({
-	key: 'hideLoadingSelect',
+const hideLoadingSelector = selector({
+	key: 'hideLoadingSelector',
 	set: ({set}) => {
 		set(loadingState, (prevState) => ({
 			...prevState,
@@ -42,28 +42,27 @@ const hideLoadingSelect = selector({
 	},
 })
 
-const resetLoadingSelect = selector({
-	key: 'resetLoadingSelect',
+const resetLoadingSelector = selector({
+	key: 'resetLoadingSelector',
 	set: ({set}) => {
 		set(loadingState, {checkCount: 0, timeout: null})
 	},
 })
 
-const isLoadingSelect = selector({
-	key: 'isLoadingSelect',
+export const isLoadingSelector = selector({
+	key: 'isLoadingSelector',
 	get: ({get}) => {
 		const state = get(loadingState)
 		return state.checkCount > 0
 	},
 })
 
-const useLoadingSelect = (useSetRecoilState) => {
-	const showLoading = useSetRecoilState(showLoadingSelect)
-	const hideLoading = useSetRecoilState(hideLoadingSelect)
-	const resetLoading = useSetRecoilState(resetLoadingSelect)
+export const useLoadingSelector = (useSetRecoilState) => {
+	const showLoading = useSetRecoilState(showLoadingSelector)
+	const hideLoading = useSetRecoilState(hideLoadingSelector)
+	const resetLoading = useSetRecoilState(resetLoadingSelector)
 	const showLoadingWithTimeout = () => showLoading(setTimeout(() => resetLoading(), LOADING_MAX_TIME))
 	return [showLoadingWithTimeout, hideLoading]
 }
 
-export {showLoadingSelect, hideLoadingSelect, resetLoadingSelect, isLoadingSelect, useLoadingSelect}
 export default loadingState
