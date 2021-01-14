@@ -1,4 +1,4 @@
-import {Form, Input, Button} from 'antd'
+import {Form, Input, Button, message} from 'antd'
 import React, {useRef, useEffect} from 'react'
 import axios from 'axios'
 import {useSetRecoilState} from 'recoil'
@@ -20,12 +20,21 @@ const Login = () => {
 		emailRef.current.input.focus()
 	}, [])
 
+	const checkValidate = (email, password) => {
+		//TODO eamil , pw validate
+
+		return email.length > 0 && password.length > 0
+	}
 	const onClickLoginButton = (e) => {
 		e.preventDefault()
 		const email = emailRef.current.input.value
 		const password = passwordRef.current.input.value
 
-		console.log('#@# email, pw', email, password)
+		if (!checkValidate(email, password)) {
+			// TODO Toast or Validate error
+			message.info('check your Email or Password')
+			return
+		}
 
 		// setLoading({ ...loadingData, checkSum: 1 });
 		// "email": "eve.holt@reqres.in",
@@ -43,7 +52,7 @@ const Login = () => {
 				hideLoading()
 			})
 			.catch((error) => {
-				console.log(error)
+				message.error(error.message)
 				hideLoading()
 			})
 	}
