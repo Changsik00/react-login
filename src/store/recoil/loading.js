@@ -5,7 +5,7 @@ const LOADING_MAX_TIME = 5000
 const loadingState = atom({
 	key: 'loadingState',
 	default: {
-		checkCount: 0,
+		loadingCount: 0,
 		timeout: null,
 	},
 })
@@ -19,13 +19,13 @@ const showLoadingSelector = selector({
 					clearTimeout(prevState.timeout)
 				}
 				return {
-					checkCount: prevState.checkCount + 1,
+					loadingCount: prevState.loadingCount + 1,
 					timeout,
 				}
 			} else {
 				return {
 					...prevState,
-					checkCount: prevState.checkCount + 1,
+					loadingCount: prevState.loadingCount + 1,
 				}
 			}
 		})
@@ -37,7 +37,7 @@ const hideLoadingSelector = selector({
 	set: ({set}) => {
 		set(loadingState, (prevState) => ({
 			...prevState,
-			checkCount: prevState.checkCount - 1,
+			loadingCount: prevState.loadingCount - 1,
 		}))
 	},
 })
@@ -45,7 +45,7 @@ const hideLoadingSelector = selector({
 const resetLoadingSelector = selector({
 	key: 'resetLoadingSelector',
 	set: ({set}) => {
-		set(loadingState, {checkCount: 0, timeout: null})
+		set(loadingState, {loadingCount: 0, timeout: null})
 	},
 })
 
@@ -53,7 +53,7 @@ export const isLoadingSelector = selector({
 	key: 'isLoadingSelector',
 	get: ({get}) => {
 		const state = get(loadingState)
-		return state.checkCount > 0
+		return state.loadingCount > 0
 	},
 })
 
