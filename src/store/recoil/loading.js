@@ -1,5 +1,5 @@
 import {atom, selector} from 'recoil'
-
+import {useSetRecoilState} from 'recoil'
 const LOADING_MAX_TIME = 5000
 
 const loadingState = atom({
@@ -57,12 +57,28 @@ export const isLoadingSelector = selector({
 	},
 })
 
-export const useLoadingSelector = (useSetRecoilState) => {
+export const useLoadingSelector = () => {
 	const showLoading = useSetRecoilState(showLoadingSelector)
 	const hideLoading = useSetRecoilState(hideLoadingSelector)
 	const resetLoading = useSetRecoilState(resetLoadingSelector)
 	const showLoadingWithTimeout = () => showLoading(setTimeout(() => resetLoading(), LOADING_MAX_TIME))
 	return [showLoadingWithTimeout, hideLoading]
+}
+
+export const useFetchWithLoading = (_errorHandler) => {
+	const [showLoading, hideLoading] = useLoadingSelector()
+	return async (fetch, errorHandler) => {
+		let ret = null
+		showLoading()
+		try {
+			if (fetch) ret = await fetch()
+		} catch (err) {
+			if (errorHandler) errorHandler(err)
+			else _errorHandler && _errorHandler(err)
+		}
+		hideLoading()
+		return ret
+	}
 }
 
 export default loadingState

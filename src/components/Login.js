@@ -1,8 +1,7 @@
 import {Form, Input, Button, message} from 'antd'
 import React, {useRef, useEffect} from 'react'
 import axios from 'axios'
-import {useSetRecoilState} from 'recoil'
-import {useLoadingSelector} from '../store/recoil/loading'
+import {useFetchWithLoading} from '../store/recoil/loading'
 const layout = {
 	labelCol: {span: 8},
 	wrapperCol: {span: 16},
@@ -17,7 +16,7 @@ const checkValidate = (email, password) => {
 }
 
 const Login = () => {
-	const [showLoading, hideLoading] = useLoadingSelector(useSetRecoilState)
+	const fetchWithLoading = useFetchWithLoading((err) => message.error(err.message))
 	const emailRef = useRef()
 	const passwordRef = useRef()
 
@@ -33,17 +32,15 @@ const Login = () => {
 
 		// "email": "eve.holt@reqres.in",
 		// "password": "cityslicka"
-
-		showLoading()
-		try {
-			const res = await axios.post('https://reqres.in/api/login', {email, password})
+		const res = await fetchWithLoading(
+			() => axios.post('https://reqres.in/api/login', {email, password})
+			// (err) => message.error(err.message)
+		)
+		if (res) {
+			message.info(res.data.token)
 			emailRef.current.input.value = ''
 			passwordRef.current.input.value = ''
-			console.log('#@# success', res.data)
-		} catch (error) {
-			message.error(error.message)
 		}
-		hideLoading()
 	}
 
 	return (
