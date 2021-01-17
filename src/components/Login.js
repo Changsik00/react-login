@@ -1,63 +1,72 @@
 import {Form, Input, Button, message} from 'antd'
-import React, {useRef, useEffect} from 'react'
+import React, {useRef} from 'react'
 import axios from 'axios'
-import {useFetchWithLoading} from '../store/recoil/loading'
+import {useFunctionWithLoading} from '../store/recoil/loading'
 const layout = {
-	labelCol: {span: 8},
-	wrapperCol: {span: 16},
+  labelCol: {span: 8},
+  wrapperCol: {span: 16},
 }
 const tailLayout = {
-	wrapperCol: {offset: 8, span: 16},
+  wrapperCol: {offset: 8, span: 16},
 }
 
 const checkValidate = (email, password) => {
-	// TODO REGX
-	return email.length > 0 && password.length > 0
+  // TODO REGX
+  return email.length > 0 && password.length > 0
 }
 
 const Login = () => {
-	const fetchWithLoading = useFetchWithLoading((err) => message.error(err.message))
-	const emailRef = useRef()
-	const passwordRef = useRef()
+  const fetchWithLoading = useFunctionWithLoading(err =>
+    message.error(err.message),
+  )
+  const emailRef = useRef()
+  const passwordRef = useRef()
 
-	const onClickLoginButton = async (e) => {
-		e.preventDefault()
-		const email = emailRef.current.input.value
-		const password = passwordRef.current.input.value
+  const onClickLoginButton = async e => {
+    e.preventDefault()
+    const email = emailRef.current.input.value
+    const password = passwordRef.current.input.value
 
-		if (!checkValidate(email, password)) {
-			message.info('check your Email or Password')
-			return
-		}
+    if (!checkValidate(email, password)) {
+      message.info('check your Email or Password')
+      return
+    }
 
-		// "email": "eve.holt@reqres.in",
-		// "password": "cityslicka"
-		const res = await fetchWithLoading(
-			() => axios.post('https://reqres.in/api/login', {email, password})
-			// (err) => message.error(err.message)
-		)
-		if (res) {
-			message.info(res.data.token)
-			emailRef.current.input.value = ''
-			passwordRef.current.input.value = ''
-		}
-	}
+    // "email": "eve.holt@reqres.in",
+    // "password": "cityslicka"
+    const res = await fetchWithLoading(() =>
+      axios.post('https://reqres.in/api/login', {email, password}),
+    )
+    if (res) {
+      message.info(res.data.token)
+      emailRef.current.input.value = ''
+      passwordRef.current.input.value = ''
+    }
+  }
 
-	return (
-		<Form {...layout} name='basic' initialValues={{remember: true}}>
-			<Form.Item label='Email' name={['user', 'email']} rules={[{required: true, type: 'email'}]}>
-				<Input ref={emailRef} />
-			</Form.Item>
-			<Form.Item label='Password' name='password' rules={[{required: true, message: 'Please input your password!'}]}>
-				<Input.Password ref={passwordRef} />
-			</Form.Item>
-			<Form.Item {...tailLayout}>
-				<Button type='primary' htmlType='submit' onClick={onClickLoginButton}>
-					Login
-				</Button>
-			</Form.Item>
-		</Form>
-	)
+  return (
+    <Form {...layout} name="basic" initialValues={{remember: true}}>
+      <Form.Item
+        label="Email"
+        name={['user', 'email']}
+        rules={[{required: true, type: 'email'}]}
+      >
+        <Input ref={emailRef} />
+      </Form.Item>
+      <Form.Item
+        label="Password"
+        name="password"
+        rules={[{required: true, message: 'Please input your password!'}]}
+      >
+        <Input.Password ref={passwordRef} />
+      </Form.Item>
+      <Form.Item {...tailLayout}>
+        <Button type="primary" htmlType="submit" onClick={onClickLoginButton}>
+          Login
+        </Button>
+      </Form.Item>
+    </Form>
+  )
 }
 
 export default Login
