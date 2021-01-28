@@ -1,9 +1,10 @@
-import '../assets/style/app.less'
+import React from 'react'
+import {RecoilRoot} from 'recoil'
 import {ConfigProvider} from 'antd'
 import ko_KR from 'antd/lib/locale/ko_KR'
+import '../assets/style/app.less'
 import Login from './Login'
 import {Loading} from './Loading'
-import {RecoilRoot} from 'recoil'
 
 const App = () => {
   return (

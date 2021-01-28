@@ -10,19 +10,20 @@ const tailLayout = {
   wrapperCol: {offset: 8, span: 16},
 }
 
-const checkValidate = (email, password) => {
+const checkValidate = (email: string, password: string) => {
   // TODO REGX
   return email.length > 0 && password.length > 0
 }
 
-const Login = () => {
-  const fetchWithLoading = useFunctionWithLoading(err =>
-    message.error(err.message),
-  )
-  const emailRef = useRef()
-  const passwordRef = useRef()
+function Login() {
+  const fetchWithLoading = useFunctionWithLoading((err: {message: string}) => {
+    message.error(err.message)
+  })
 
-  const onClickLoginButton = async e => {
+  const emailRef = useRef<any>()
+  const passwordRef = useRef<any>()
+
+  const onClickLoginButton = async (e: {preventDefault: () => void}) => {
     e.preventDefault()
     const email = emailRef.current.input.value
     const password = passwordRef.current.input.value
@@ -34,8 +35,9 @@ const Login = () => {
 
     // "email": "eve.holt@reqres.in",
     // "password": "cityslicka"
-    const res = await fetchWithLoading(() =>
-      axios.post('https://reqres.in/api/login', {email, password}),
+    const res = await fetchWithLoading(
+      () => axios.post('https://reqres.in/api/login', {email, password}),
+      null,
     )
     if (res) {
       message.info(res.data.token)
