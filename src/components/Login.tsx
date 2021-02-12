@@ -39,8 +39,10 @@ firebase.auth().onAuthStateChanged(function (user) {
     // let uid = user.uid
     // let providerData = user.providerData
 
-    user.getIdToken().then(function (idToken) {
+    user.getIdToken().then(async function (idToken) {
       console.log('#@# onAuthStateChanged', idToken)
+      await axios.post('http://localhost:3000/oauth/sign-in', {idToken})
+      localStorage.setItem('fb_access_token', idToken)
     })
   } else {
     console.log('#@# onAuthStateChanged user is null')
@@ -48,7 +50,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 })
 
 const checkValidate = (email: string, password: string) => {
-  // TODO REGX
+  // TODO: REGX
   return email.length > 0 && password.length > 0
 }
 
@@ -82,6 +84,17 @@ function Login() {
       })
   }
 
+  const onClickApiReqButton = async () => {
+    await axios
+      .get('http://localhost:3000/foo', {
+        params: {
+          accessToken: localStorage.getItem('fb_access_token'),
+        },
+      })
+      .then(res => console.log('#@# api req: ', res))
+      .catch(err => console.log('#@# api req: ', err))
+  }
+
   const responseKaKao = async (res: any) => {
     console.log('#@# responseKaKao', res)
 
@@ -91,11 +104,20 @@ function Login() {
       loginType: 'kakao',
     }
     const result = await axios.post(
-      'http://localhost:3000/user/register',
+      'http://localhost:3000/kakao/sign-up',
       params,
     )
 
-    console.log('#@# register kakao user: ', result)
+    console.log('#@# sign-up kakao user: ', result)
+    firebase
+      .auth()
+      .signInWithCustomToken(result.data.access_token)
+      .then(async user => {
+        console.log('#@# signInWithCustomToken user: ', user)
+      })
+      .catch(err => {
+        console.log('#@# signInWithCustomToken err: ', err)
+      })
   }
 
   const responseFail = (err: any) => {
@@ -128,6 +150,11 @@ function Login() {
           onSuccess={responseKaKao}
           onFail={responseFail}
         />
+      </Form.Item>
+      <Form.Item {...tailLayout}>
+        <Button type="default" htmlType="submit" onClick={onClickApiReqButton}>
+          API Req
+        </Button>
       </Form.Item>
     </Form>
   )
