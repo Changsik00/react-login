@@ -38,12 +38,13 @@ firebase.auth().onAuthStateChanged(function (user) {
     // let isAnonymous = user.isAnonymous
     // let uid = user.uid
     // let providerData = user.providerData
-
-    user.getIdToken().then(async function (idToken) {
-      console.log('#@# onAuthStateChanged', idToken)
-      await axios.post('http://localhost:3000/oauth/sign-in', {idToken})
-      localStorage.setItem('fb_access_token', idToken)
-    })
+    if (!user.uid.includes('kakao')) {
+      user.getIdToken().then(async function (idToken) {
+        console.log('#@# onAuthStateChanged', idToken)
+        await axios.post('http://localhost:3000/oauth/sign-in', {idToken})
+        localStorage.setItem('fb_access_token', idToken)
+      })
+    }
   } else {
     console.log('#@# onAuthStateChanged user is null')
   }
@@ -107,6 +108,7 @@ function Login() {
       'http://localhost:3000/kakao/sign-up',
       params,
     )
+    localStorage.setItem('fb_access_token', result.data.access_token)
 
     console.log('#@# sign-up kakao user: ', result)
     firebase
@@ -114,6 +116,9 @@ function Login() {
       .signInWithCustomToken(result.data.access_token)
       .then(async user => {
         console.log('#@# signInWithCustomToken user: ', user)
+        await axios.post('http://localhost:3000/oauth/sign-in', {
+          data: {idToken: localStorage.getItem('fb_access_token')},
+        })
       })
       .catch(err => {
         console.log('#@# signInWithCustomToken err: ', err)
