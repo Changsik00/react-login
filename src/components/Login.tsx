@@ -41,7 +41,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     if (!user.uid.includes('kakao')) {
       user.getIdToken().then(async function (idToken) {
         console.log('#@# onAuthStateChanged', idToken)
-        await axios.post('http://localhost:3000/oauth/sign-in', {idToken})
+        await axios.post('http://localhost:3000/sign-in', {idToken})
         localStorage.setItem('fb_access_token', idToken)
       })
     }
@@ -87,7 +87,7 @@ function Login() {
 
   const onClickApiReqButton = async () => {
     await axios
-      .get('http://localhost:3000/foo', {
+      .get('http://localhost:3000/user/me', {
         params: {
           accessToken: localStorage.getItem('fb_access_token'),
         },
@@ -105,7 +105,7 @@ function Login() {
       loginType: 'kakao',
     }
     const result = await axios.post(
-      'http://localhost:3000/kakao/sign-up',
+      'http://localhost:3000/auth/sign-up',
       params,
     )
     localStorage.setItem('fb_access_token', result.data.access_token)
@@ -116,7 +116,7 @@ function Login() {
       .signInWithCustomToken(result.data.access_token)
       .then(async user => {
         console.log('#@# signInWithCustomToken user: ', user)
-        await axios.post('http://localhost:3000/oauth/sign-in', {
+        await axios.post('http://localhost:3000/auth/sign-in', {
           data: {idToken: localStorage.getItem('fb_access_token')},
         })
       })
