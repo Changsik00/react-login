@@ -41,7 +41,9 @@ firebase.auth().onAuthStateChanged(function (user) {
     if (!user.uid.includes('kakao')) {
       user.getIdToken().then(async function (idToken) {
         console.log('#@# onAuthStateChanged', idToken)
-        await axios.post('http://localhost:3000/sign-in', {idToken})
+        await axios.post('http://localhost:3000/sign-in', {
+          accessToken: idToken,
+        })
         localStorage.setItem('fb_access_token', idToken)
       })
     }
@@ -77,8 +79,19 @@ function Login() {
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(result => {
-        console.log('#@# signInWithEmailAndPassword result', result)
+      .then(async res => {
+        console.log('#@# signInWithEmailAndPassword res', res)
+        await axios.post('http://localhost:3000/auth/sign-in', {
+          loginType: 'kakao',
+          uid: res.user?.uid,
+          displayName: res.user?.displayName,
+          email: res.user?.email,
+          emailVerified: res.user?.emailVerified,
+          accessToken: localStorage.getItem('fb_access_token'),
+          refreshToken: res.user?.refreshToken,
+          creationTime: res.user?.metadata.creationTime,
+          lastSignInTime: res.user?.metadata.lastSignInTime,
+        })
       })
       .catch(error => {
         console.log('#@# signInWithEmailAndPassword error', error)
@@ -99,26 +112,34 @@ function Login() {
   const responseKaKao = async (res: any) => {
     console.log('#@# responseKaKao', res)
 
-    const params = {
+    const result = await axios.post('http://localhost:3000/auth/sign-up', {
+      loginType: 'kakao',
+      uid: res.profile.id,
+      email: res.profile.kakao_account.email,
+      displayName: res.profile.nickname,
       accessToken: res.response.access_token,
       refreshToken: res.response.refresh_token,
-      loginType: 'kakao',
-    }
-    const result = await axios.post(
-      'http://localhost:3000/auth/sign-up',
-      params,
-    )
-    localStorage.setItem('fb_access_token', result.data.access_token)
+    })
+    localStorage.setItem('fb_access_token', result.data.accessToken)
 
     console.log('#@# sign-up kakao user: ', result)
     firebase
       .auth()
-      .signInWithCustomToken(result.data.access_token)
-      .then(async user => {
-        console.log('#@# signInWithCustomToken user: ', user)
-        await axios.post('http://localhost:3000/auth/sign-in', {
-          data: {idToken: localStorage.getItem('fb_access_token')},
+      .signInWithCustomToken(result.data.accessToken)
+      .then(async res => {
+        console.log('#@# signInWithCustomToken res: ', res)
+        const result = await axios.post('http://localhost:3000/auth/sign-in', {
+          loginType: 'kakao',
+          uid: res.user?.uid,
+          displayName: res.user?.displayName,
+          email: res.user?.email,
+          emailVerified: res.user?.emailVerified,
+          accessToken: localStorage.getItem('fb_access_token'),
+          refreshToken: res.user?.refreshToken,
+          creationTime: res.user?.metadata.creationTime,
+          lastSignInTime: res.user?.metadata.lastSignInTime,
         })
+        console.log('#@# sign-in result: ', result)
       })
       .catch(err => {
         console.log('#@# signInWithCustomToken err: ', err)
