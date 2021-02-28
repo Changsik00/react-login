@@ -44,7 +44,9 @@ firebase.auth().onAuthStateChanged(function (user) {
         await axios.post('http://localhost:3000/sign-in', {
           accessToken: idToken,
         })
+        localStorage.setItem('uid', user.uid)
         localStorage.setItem('fb_access_token', idToken)
+        localStorage.setItem('login_type', 'firebase')
       })
     }
   } else {
@@ -100,11 +102,16 @@ function Login() {
 
   const onClickApiReqButton = async () => {
     await axios
-      .get('http://localhost:3000/user/me', {
-        params: {
-          accessToken: localStorage.getItem('fb_access_token'),
+      .get(
+        `http://localhost:3000/user/me?loginType=${localStorage.getItem(
+          'login_type',
+        )}&uid=${localStorage.getItem('uid')}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('fb_access_token')}`,
+          },
         },
-      })
+      )
       .then(res => console.log('#@# api req: ', res))
       .catch(err => console.log('#@# api req: ', err))
   }
@@ -114,13 +121,17 @@ function Login() {
 
     const result = await axios.post('http://localhost:3000/auth/sign-up', {
       loginType: 'kakao',
-      uid: res.profile.id,
+      uid: 'kakao' + res.profile.id,
       email: res.profile.kakao_account.email,
       displayName: res.profile.nickname,
       accessToken: res.response.access_token,
       refreshToken: res.response.refresh_token,
     })
+    localStorage.setItem('uid', 'kakao' + res.profile.id)
     localStorage.setItem('fb_access_token', result.data.accessToken)
+    localStorage.setItem('login_type', 'kakao')
+    localStorage.setItem('tmp_kakao_access_token', res.response.access_token)
+    localStorage.setItem('tmp_kakao_refresh_token', res.response.refresh_token)
 
     console.log('#@# sign-up kakao user: ', result)
     firebase
@@ -138,7 +149,15 @@ function Login() {
           refreshToken: res.user?.refreshToken,
           creationTime: res.user?.metadata.creationTime,
           lastSignInTime: res.user?.metadata.lastSignInTime,
+          thirdPartyAccessToken: localStorage.getItem('tmp_kakao_access_token'),
+          thirdPartyRefreshToken: localStorage.getItem(
+            'tmp_kakao_refresh_token',
+          ),
         })
+        if (result) {
+          localStorage.removeItem('tmp_kakao_access_token')
+          localStorage.removeItem('tmp_kakao_refresh_token')
+        }
         console.log('#@# sign-in result: ', result)
       })
       .catch(err => {
