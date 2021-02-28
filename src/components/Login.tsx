@@ -41,7 +41,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     if (!user.uid.includes('kakao')) {
       user.getIdToken().then(async function (idToken) {
         console.log('#@# onAuthStateChanged', idToken)
-        await axios.post('http://localhost:3000/sign-in', {
+        await axios.post('http://localhost:3000/auth/sign-in', {
           accessToken: idToken,
         })
         localStorage.setItem('uid', user.uid)
